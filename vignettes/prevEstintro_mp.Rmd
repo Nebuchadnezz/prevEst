@@ -1,0 +1,403 @@
+---
+title: "Using prevEst"
+author: "Corey Neff and Quinn T. Ostrom"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  warning = FALSE, 
+  message = FALSE,
+  comment = "#>"
+)
+file.sources = list.files(path="X:\\Manuscripts\\Prevalence_NonMalignant\\prevEst\\R",pattern="*.R",full.names = TRUE)
+sapply(file.sources,source,.GlobalEnv)
+
+
+plot.theme <- theme(axis.text = element_text(colour="black"),
+                    axis.title =element_text(colour="black",face="bold"),
+                    panel.grid = element_blank(),
+                    panel.background = element_rect(colour="black",fill=NULL),
+                    strip.text =element_text(colour="black",face="bold"),
+                    strip.background = element_blank())
+
+```
+
+
+## Importing SEER*Stat output
+
+For cancer registry data that is available in SEER*Stat (e.g. SEER, USCS, NAACCR data) it is easiest to generate underlying data files using the case listing session (for incident case counts) and survival session (for observed survival proportions).
+
+```{r read in data, echo=TRUE, message=FALSE}
+library(SEER2R)
+library(tidyverse)
+
+raw.incidence <- read.SeerStat("SEER21_incidence_2000_2018", UseVarLabelsInData = TRUE) %>%
+  filter(!grepl("-",Year_of_diagnosis ))  
+head(raw.incidence)
+
+raw.survival <- read.SeerStat("SEER9_survival_1975_2018", UseVarLabelsInData = TRUE) %>%
+  mutate(yrPrev=as.numeric(Year_of_diagnosis) +as.numeric(gsub(" yr","",Summary_Interval ))) %>%
+  filter(!grepl("-",Year_of_diagnosis)) %>%
+  select("Age_recode_with_single_ages_and_85","Year_of_diagnosis","yrPrev","Observed","Expected")
+head(raw.survival)
+
+```
+
+
+## Preparing incidence data
+
+```{r echo=TRUE}
+incidence.reformat <- format_incidence(data = raw.incidence ,
+                                       ages = 0:85,
+                                       years = 2000:2018,
+                                       names = c("ageDiag"="Age_recode_with_single_ages_and_85",
+                                                "yrDiag"="Year_of_diagnosis",
+                                                "incidence"="Count"))   
+head(incidence.reformat)
+```
+
+
+<!-- ## Predicting incidence -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- incidence_predictions <- incPredict(incidence = , -->
+<!--                                     idf2 = , -->
+<!--                                     regYr = , -->
+<!--                                     durationYr = ) -->
+
+<!-- head(incidence_predictions) -->
+<!-- ``` -->
+
+
+Read in life tables provided by SEER: 
+```{r echo=TRUE}
+
+life.tables <- read.SeerStat("SEER9_survival_1975_2018_LifeTables", UseVarLabelsInData = TRUE) %>%
+  mutate(period = gsub(" yr","",Interval) %>% gsub(".*<","",.),
+         ageDiag  = as.numeric(gsub("\\D", "",Age_recode_with_single_ages_and_85 )),
+         Expected = Expected_Survival_Interval/100) %>%
+  select(ageDiag,period,Expected)
+  
+head(life.tables)
+```
+
+
+## Preparing survival data
+
+In order to project survival beyond what has been observed, assumptions about what that survival looks like must be made. One option is to assume that at the end of the observation period that survival is equal to that in the general population (population assumption). Whether this is a fair assumption is determined by the specific characteristics of your cancer(s) of interest. This analysis is run as follows for projected survival to year 2030 with 18 years of survival data (these analyses must be run stratified by race and age in order to match the US life tables): 
+
+``` {r echo=TRUE}
+survival.population <- format_survival(data=raw.survival,
+                                     ages = 0:85,
+                                     years = 2000:2018,
+                                     prevYear = 2018,
+                                     Observed.Surv = TRUE,
+                                     Expected.Surv = TRUE,
+                                     assumption = "population",
+                                     life.table = life.tables,
+                                     years.observed.surv = 18,
+                                     names = c("age"="Age_recode_with_single_ages_and_85",
+                                              "yrPrev"="yrPrev",
+                                              "yrDiag"="Year_of_diagnosis",
+                                              "Observed"="Observed",
+                                              "Expected"="Expected"))   
+head(survival.population)
+```
+
+The alternative to the population assumption is the assumption of no survival after the end of the follow up period. Under this condition, survival after the specified years of projected survival will go to zero. This analysis is run as follows for projected survival to year 2030 with 18 years of survival data:
+
+``` {r echo=TRUE}
+survival.nosurvival <- format_survival(data=raw.survival,
+                                       ages = 0:85,
+                                       years = 2000:2018,
+                                       prevYear = 2018,
+                                       assumption = "nosurvival",
+                                       names =c("age"="Age_recode_with_single_ages_and_85",
+                                                "yrPrev"="yrPrev",
+                                                "yrDiag"="Year_of_diagnosis",
+                                                "Observed"="Observed",
+                                                "Expected"="Expected"))   
+head(survival.nosurvival)
+```
+
+<!-- ## Predicting survival -->
+
+<!-- Survival for years not in the survival dataset (e.g. for years data is not available) can be predicted using the convenient \code{survPredict} function. This function is simpley a wrapper for the predict.lm method.  -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- survival.predictions <- survPredict(survival.nosurvival, -->
+<!--                                     years = 2019:2020, -->
+<!--                                     names = c("agePrev" = "agePrev", -->
+<!--                                               "yrPrev" = "yrPrev", -->
+<!--                                               "survival" = "survival")) -->
+
+<!-- head(survival.predictions) -->
+<!-- ``` -->
+
+
+
+## Generating prevalence counts
+
+Once prevalence and incidence are properly formatted, using them in the \code{prevEst} function is simple. It is designed for ease so that you, the researcher, may simply state the desired year to calculate prevelance estimates for. Further options are provided to expand output. In this example, using the previously cleaned data, incomplete prevalence is calculated for the year 2018:
+
+```{r echo=TRUE}
+
+library(gridExtra)
+
+incomplete_prevalence <- prevEst(incidence=incidence.reformat, 
+                                 survival=survival.nosurvival,
+                                 year = 2018,
+                                 adjust = F,
+                                 grouped_ages = F)
+
+head(incomplete_prevalence)
+```
+
+
+
+## Generating Rates
+
+Changing counts to rates per 100,000 using United States Census Population data for 2018:
+
+```{r echo=TRUE}
+# Load single year population estimate from SEER*Stat
+census.population <- read.SeerStat("US_PopEst_2018_sex", UseVarLabelsInData = TRUE) %>%
+  bind_rows(read.SeerStat("US_PopEst_2018_sex", UseVarLabelsInData = TRUE) %>%
+              group_by(Age_recode_with_single_ages_and_85) %>%
+              mutate(Count = sum(Count),
+                     Sex = "Both") %>%
+              distinct()) %>%
+  rename("population"="Count") %>%
+  arrange(Age_recode_with_single_ages_and_85, Sex) %>%
+  mutate(age = as.numeric(gsub("\\D", "", Age_recode_with_single_ages_and_85))) %>%
+  select(-Age_recode_with_single_ages_and_85)
+
+prevalence_rates <- incomplete_prevalence %>%
+  mutate(age = cut(as.numeric(agePrev), c(seq(0,85,5),150), include.lowest = F, right = F)) %>%
+  left_join(census.population, by = c("agePrev" = "age")) %>%
+  group_by(age) %>%
+  summarise(prevalence=sum(prevalence),
+            population=sum(population),
+            crude_rate=prevalence/population*100000) %>%
+  ungroup()
+
+```
+
+## Visualizing rates
+
+You can then visualize the single-age histogram and the crude prevalence rates by five-year age groups:
+
+```{r echo=FALSE, fig.height= 4, fig.width=8}
+counts.plot <- ggplot(data=incomplete_prevalence,
+       aes(x=agePrev,
+           y=prevalence)) +
+  geom_col() + 
+  scale_x_continuous(name="Age at Prevalence") +
+  scale_y_continuous(name="Total Prevalence Count (2018)", labels = scales::comma, expand=expansion(mult=c(0,.10))) + plot.theme
+
+rates.plot <- ggplot(data=prevalence_rates,
+       aes(x=age,
+           y=crude_rate)) +
+  geom_col() + 
+  scale_x_discrete(name="Age at Prevalence") +
+  scale_y_continuous(name="Prevalence Rate per 100,000 (2018)", labels = scales::comma, expand=expansion(mult=c(0,.10))) + plot.theme
+
+grid.arrange(counts.plot,rates.plot,nrow=1)
+
+```
+
+## Generating age-adjusted prevalence rates
+
+While age-adjusted rates can be obtained manually, for convenience, this functionality is included in the \code{prevEst} function for users who specify \code{adjust = T}. Additionally, this function can take grouped ages. To use grouped ages, input a vector that you would like ages grouped by (i.e. seq(0,85,5) for five-year ages bins from 0 to 85, with 85+ grouped into 85). If no grouped ages are desired, the data can be returned in single ages up to 85. Finally, if your data is sex-specific (e.g. as in the case of ovarian cancer), sex-specific rates are also obtainable by specifying \code{sex_specific == "Male"} or \code{sex_specific == "Female"}:
+
+```{r echo=TRUE,message=FALSE}
+load(file = "X:\\Manuscripts\\Prevalence_NonMalignant\\prevEst\\R\\sysdata.rda")   
+
+age.adjusted_prevalence <- prevEst(incidence = incidence.reformat, 
+                                    survival = survival.nosurvival,
+                                    year = 2018,
+                                    adjust = T,
+                                    grouped_ages = T,
+                                    groups = seq(0,85,5))
+
+# year = 2018
+#   prevest <- incidence.reformat %>%
+#     dplyr::left_join(survival.nosurvival, by = c("ageDiag","yrDiag")) %>%
+#     dplyr::mutate(yrPrev = year,
+#                   final = count*survival,
+#                   agePrev = as.numeric(ageDiag)+(yrPrev-yrDiag)) %>%
+#     dplyr::group_by(agePrev) %>%
+#     tidyr::drop_na() %>%
+#     dplyr::summarise(prevalence = sum(final, na.rm=TRUE)) %>%
+#     dplyr::ungroup()
+
+print(age.adjusted_prevalence)
+```
+
+You can compare crude versus age-adjusted prevalence rates:
+
+```{r echo=FALSE, fig.height= 4, fig.width=8}
+ggplot() +
+  geom_col(data=age.adjusted_prevalence,aes(x="Crude",y=crude_rate)) + 
+  geom_col(data=age.adjusted_prevalence,aes(x="Age-Adjusted",y=adjusted_rate)) + 
+  geom_errorbar(data=age.adjusted_prevalence,aes(x="Age-Adjusted",ymin=adjusted_lci,ymax=adjusted_uci),width=.25) + 
+  scale_x_discrete(name="Rate Type") +
+  scale_y_continuous(name="Incidence Rate per 100,000", labels = scales::comma, expand=expansion(mult=c(0,.10))) + plot.theme
+
+```
+
+# Estimating complete prevalence
+
+```{r echo=TRUE}
+
+raw.incidence_est <- read.SeerStat("SEER9_incidence_1975_2018", UseVarLabelsInData = TRUE) %>%
+  filter(!grepl("-",Year_of_diagnosis ))  
+
+head(raw.incidence_est)
+
+incidence_est.reformat <- format_incidence(data = raw.incidence_est ,
+                             ages= 0:85,
+                             years =1975:2018,
+                             names = c("ageDiag"="Age_recode_with_single_ages_and_85",
+                                       "yrDiag"="Year_of_diagnosis",
+                                       "incidence"="Count"))  
+head(incidence_est.reformat)
+
+survival.extended <- format_survival(data=raw.survival,
+                            ages= 0:85,
+                            years=1975:2018,
+                             prevYear =2018,
+                                     Observed.Surv=TRUE,
+                                     assumption="nosurvival",
+                                     years.observed.surv=30,
+                             names =c("age"="Age_recode_with_single_ages_and_85",
+                                      "yrPrev"="yrPrev",
+                                      "yrDiag"="Year_of_diagnosis",
+                                      "Observed"="Observed"))   
+
+head(survival.extended)
+
+complete_incidence <- regPrev(incidence=incidence.reformat,
+  incidence_est=incidence_est.reformat,
+  regYr=2000:2018,
+  durationYr=1975:1999)
+
+complete_prevalence <- prevEst(incidence=complete_incidence, 
+  survival=survival.extended,
+  year =2018,
+  adjust = F,
+  grouped_ages = F)
+```
+
+You can then compare the output of complete versus incomplete prevalence methods:
+
+```{r echo=FALSE, fig.height= 4, fig.width=8}
+compare_prevalence <- bind_rows(incomplete_prevalence %>%
+                                  mutate(type="Incomplete Prevalence"),
+                                complete_prevalence  %>%
+                                  mutate(type="Complete Prevalence")) %>%
+  dplyr::mutate(age = cut(as.numeric(agePrev ), c(seq(0,85,5),150), include.lowest = F, right = F,ordered_result =TRUE)) %>%
+  group_by(age,type) %>%
+  dplyr::summarise(prevalence=sum(prevalence)) 
+
+
+ ggplot(data=compare_prevalence,
+       aes(x=age,
+           y=prevalence,
+           group=type)) +
+  geom_col() + 
+  scale_x_discrete(name="Age at Prevalence") +
+  scale_y_continuous(name="Prevalence Count (2018)", labels = scales::comma, expand=expansion(mult=c(0,.10))) + plot.theme + facet_grid(~type)
+
+```
+
+
+<!-- ## Generating projected prevalence rates -->
+
+
+<!-- In order to project survival beyond what has been observed, one must make assumptions about what that survival looks like. One option is to assume that at the end of the observation period that survival is equal to that in the general population. Whether this is a fair assumption is determined by the specific characteristics of your cancer(s) of interest. This analysis is run as follows, for projected survival to year 2030 with 18 years of survival data. These analyses must be run stratified by race and age in order to match the US life tables.  -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- projected_incidence <- project_incidence(data=complete_incidence,  -->
+<!--                                      final.year=2030)  -->
+
+
+<!-- projected_survival_population <- project_survival(data=raw.survival, -->
+<!--                                                   ages= 0:85, -->
+<!--                                                   years=1975:2018, -->
+<!--                                                   final.year=2030, -->
+<!--                                                   Observed.Surv=TRUE, -->
+<!--                                                   Expected.Surv=TRUE, -->
+<!--                                                   assumption="population", -->
+<!--                                                   life.table=life.tables, -->
+<!--                                                   years.observed.surv=20, -->
+<!--                                                   names =c("age"="Age_recode_with_single_ages_and_85", -->
+<!--                                                            "yrPrev"="yrPrev", -->
+<!--                                                            "yrDiag"="Year_of_diagnosis", -->
+<!--                                                            "Observed"="Observed", -->
+<!--                                                            "Expected"="Expected")) -->
+
+
+<!-- projected_prevalence_population <- prevEst(incidence=projected_incidence,  -->
+<!--   survival=projected_survival_population, -->
+<!--   year =2030, -->
+<!--   adjust = F, -->
+<!--   grouped_ages = F) -->
+
+<!-- ``` -->
+
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- projected_survival_nosurvival <- project_survival(data=raw.survival, -->
+<!--                                                   ages= 0:85, -->
+<!--                                                   years=1975:2018, -->
+<!--                                                   final.year=2030, -->
+<!--                                                   Observed.Surv=TRUE, -->
+<!--                                                   assumption="nosurvival", -->
+<!--                                                   years.observed.surv=20, -->
+<!--                                                   names =c("age"="Age_recode_with_single_ages_and_85","yrPrev"="yrPrev","yrDiag"="Year_of_diagnosis", -->
+<!--                                                            "Observed"="Observed","Expected"="Expected")) -->
+
+
+<!-- projected_prevalence_nosurvival <- prevEst(incidence=projected_incidence,  -->
+<!--   survival=projected_survival_nosurvival, -->
+<!--   year =2030, -->
+<!--   adjust = F, -->
+<!--   grouped_ages = F) -->
+
+
+<!-- ``` -->
+
+<!-- We can then compare the output of the two projected prevalence methods -->
+<!-- ```{r echo=FALSE, fig.height= 4, fig.width=8} -->
+<!-- projected_prevalence <- bind_rows(projected_prevalence_population %>% mutate(method="Population"), -->
+<!--                                   projected_prevalence_nosurvival %>% mutate(method="No Survival")) -->
+
+<!-- projected_prevalence  %>% -->
+<!--   dplyr::mutate(age = cut(as.numeric(agePrev ), c(seq(0,85,5),150), include.lowest = F, right = F,ordered_result =TRUE)) %>% -->
+<!--   group_by(age,method ) %>% -->
+<!--   summarise(prevalence=sum(prevalence)) %>% -->
+<!--   ungroup() %>% -->
+<!--   tidyr::drop_na()%>% -->
+<!--   ggplot(aes(x=age, -->
+<!--            y=prevalence)) + -->
+<!--   geom_col() +  -->
+<!--   scale_x_discrete(name="Age at Prevalence") + -->
+<!--   scale_y_continuous(name="Total Prevalence Count (2030)", labels = scales::comma, expand=expansion(mult=c(0,.10))) + plot.theme + -->
+<!--   facet_grid(~method) -->
+
+<!-- ``` -->
+
+

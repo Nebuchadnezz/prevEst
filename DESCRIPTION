@@ -1,0 +1,37 @@
+Package: prevEst
+Title: Useful functions for estimating complete prevalence using incidence and survival statistics
+Version: 0.2
+Authors@R: 
+	c(person(given = "Adah",
+        family = "Zhang",
+        role = "aut"),
+	person(given = "Corey",
+        family = "Neff",
+        role = c("aut"), 
+        email = "corey.neff@duke.edu",
+        comment = c("ORCID" = "0000-0001-9479-2747")),
+	person(given = "Jill S.",
+        family = "Barnholtz-Sloan",
+        role = "aut",
+        email = "jill.barnholtz-sloan@nih.gov",
+         comment = c("ORCID" = "0000-0001-6190-9304")),
+	person(given = "Quinn T.",
+        family = "Ostrom",
+        role = c("aut", "cre"),
+         email = "quinn.ostrom@duke.edu",
+        comment = c("ORCID" = "0000-0003-3469-7558"))					
+			)
+Description: Complete prevalence refers to the number of people diagnosed with a disease that are alive at some point in time. This prackage provides useful functions for estimating complete prevalence data from survival data and incidence data. This package uses uses methods outlined in 	Zhang et al., (2017). "Complete prevalence of malignant primary brain tumors registry data in the United States compared with other common cancers, 2010."
+License: `use_gpl3_license()`
+Depends: R (>= 4.0.0)
+Imports: 
+	dplyr (>= 1.0.1), 
+	tidyr, 
+	purrr
+Suggests:
+	asht,
+	betareg
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2

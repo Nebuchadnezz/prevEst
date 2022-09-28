@@ -1,0 +1,12 @@
+bibentry(
+  "Article",
+  title = " Complete prevalence of malignant primary brain tumors registry data in the United States compared with other common cancers, 2010",
+  author = "Adah S Zhang, Quinn T Ostrom, Carol Kruchko, Lisa Rogers, David M Peereboom, Jill S Barnholtz-Sloan",
+  year = 2017,
+  journal = "Neuro-Oncology",
+  volume = 19,
+  number = 5,
+  pages = 726-735,
+  doi = "10.1093/neuonc/now252",
+  textVersion = "Zhang et al., (2017). Welcome to the tidyverse. Neuro-Oncology, 19(5), 726-735, https://doi.org/10.1093/neuonc/now252"
+)

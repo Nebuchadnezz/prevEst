@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Corey Neff and Quinn T. Ostrom" />
+
+<meta name="date" content="2022-02-23" />
+
+<title>Using prevEst</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Using prevEst</h1>
+<h4 class="author">Corey Neff and Quinn T. Ostrom</h4>
+<h4 class="date">2022-02-23</h4>
+
+
+
+<div id="importing-seerstat-output" class="section level2">
+<h2>Importing SEER*Stat output</h2>
+<p>For cancer registry data that is available in SEER*Stat (e.g. SEER, USCS, NAACCR data) it is easiest to generate underlying data files using the case listing session (for incident case counts) and survival session (for observed survival proportions).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SEER2R)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>raw.incidence <span class="ot">&lt;-</span> <span class="fu">read.SeerStat</span>(<span class="st">&quot;SEER21_incidence_2000_2018&quot;</span>, <span class="at">UseVarLabelsInData =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;-&quot;</span>,Year_of_diagnosis ))  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw.incidence)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Age_recode_with_single_ages_and_85 Year_of_diagnosis Count</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                           00 years              2000   357</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                           00 years              2001   373</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                           00 years              2002   375</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                           00 years              2003   346</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                           00 years              2004   379</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                           00 years              2005   371</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>raw.survival <span class="ot">&lt;-</span> <span class="fu">read.SeerStat</span>(<span class="st">&quot;SEER9_survival_1975_2018&quot;</span>, <span class="at">UseVarLabelsInData =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">yrPrev=</span><span class="fu">as.numeric</span>(Year_of_diagnosis) <span class="sc">+</span><span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">&quot; yr&quot;</span>,<span class="st">&quot;&quot;</span>,Summary_Interval ))) <span class="sc">%&gt;%</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;-&quot;</span>,Year_of_diagnosis)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">&quot;Age_recode_with_single_ages_and_85&quot;</span>,<span class="st">&quot;Year_of_diagnosis&quot;</span>,<span class="st">&quot;yrPrev&quot;</span>,<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Expected&quot;</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw.survival)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Age_recode_with_single_ages_and_85 Year_of_diagnosis yrPrev Observed Expected</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                           00 years              1975   1975    100.0    100.0</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                           00 years              1975   1976     68.9     98.5</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                           00 years              1975   1977     67.0     98.4</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                           00 years              1975   1978     67.0     98.3</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                           00 years              1975   1979     67.0     98.3</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                           00 years              1975   1980     65.0     98.3</span></span></code></pre></div>
+</div>
+<div id="preparing-incidence-data" class="section level2">
+<h2>Preparing incidence data</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>incidence.reformat <span class="ot">&lt;-</span> <span class="fu">format_incidence</span>(<span class="at">data =</span> raw.incidence ,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">ages =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">85</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">years =</span> <span class="dv">2000</span><span class="sc">:</span><span class="dv">2018</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;ageDiag&quot;</span><span class="ot">=</span><span class="st">&quot;Age_recode_with_single_ages_and_85&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                                                <span class="st">&quot;yrDiag&quot;</span><span class="ot">=</span><span class="st">&quot;Year_of_diagnosis&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                                                <span class="st">&quot;incidence&quot;</span><span class="ot">=</span><span class="st">&quot;Count&quot;</span>))   </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(incidence.reformat)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ageDiag yrDiag count</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0   2000   357</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0   2001   373</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0   2002   375</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0   2003   346</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0   2004   379</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0   2005   371</span></span></code></pre></div>
+<!-- ## Predicting incidence -->
+<!-- ```{r echo=TRUE} -->
+<!-- incidence_predictions <- incPredict(incidence = , -->
+<!--                                     idf2 = , -->
+<!--                                     regYr = , -->
+<!--                                     durationYr = ) -->
+<!-- head(incidence_predictions) -->
+<!-- ``` -->
+<p>Read in life tables provided by SEER</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>life.tables <span class="ot">&lt;-</span> <span class="fu">read.SeerStat</span>(<span class="st">&quot;SEER9_survival_1975_2018_LifeTables&quot;</span>, <span class="at">UseVarLabelsInData =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">period =</span> <span class="fu">gsub</span>(<span class="st">&quot; yr&quot;</span>,<span class="st">&quot;&quot;</span>,Interval) <span class="sc">%&gt;%</span> <span class="fu">gsub</span>(<span class="st">&quot;.*&lt;&quot;</span>,<span class="st">&quot;&quot;</span>,.),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">ageDiag  =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">D&quot;</span>, <span class="st">&quot;&quot;</span>,Age_recode_with_single_ages_and_85 )),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">Expected =</span> Expected_Survival_Interval<span class="sc">/</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(ageDiag,period,Expected)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(life.tables)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ageDiag period Expected</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0      0    1.000</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0      1    0.992</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0      2    0.999</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0      3    1.000</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0      4    1.000</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0      5    1.000</span></span></code></pre></div>
+</div>
+<div id="preparing-survival-data" class="section level2">
+<h2>Preparing survival data</h2>
+<p>In order to project survival beyond what has been observed, one must make assumptions about what that survival looks like. One option is to assume that at the end of the observation period that survival is equal to that in the general population. Whether this is a fair assumption is determined by the specific characteristics of your cancer(s) of interest. This analysis is run as follows, for projected survival to year 2030 with 18 years of survival data. These analyses must be run stratified by race and age in order to match the US life tables.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>survival.population <span class="ot">&lt;-</span> <span class="fu">format_survival</span>(<span class="at">data=</span>raw.survival,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">ages =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">85</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">years =</span> <span class="dv">2000</span><span class="sc">:</span><span class="dv">2018</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">prevYear =</span> <span class="dv">2018</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">Observed.Surv =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">Expected.Surv =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">assumption =</span> <span class="st">&quot;population&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">life.table =</span> life.tables,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">years.observed.surv =</span> <span class="dv">18</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;age&quot;</span><span class="ot">=</span><span class="st">&quot;Age_recode_with_single_ages_and_85&quot;</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">&quot;yrPrev&quot;</span><span class="ot">=</span><span class="st">&quot;yrPrev&quot;</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">&quot;yrDiag&quot;</span><span class="ot">=</span><span class="st">&quot;Year_of_diagnosis&quot;</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">&quot;Observed&quot;</span><span class="ot">=</span><span class="st">&quot;Observed&quot;</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">&quot;Expected&quot;</span><span class="ot">=</span><span class="st">&quot;Expected&quot;</span>))   </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(survival.population)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ageDiag agePrev yrDiag yrPrev survival</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0      18   2000   2018    0.788</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0      17   2001   2018    0.800</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0      16   2002   2018    0.772</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0      15   2003   2018    0.794</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0      14   2004   2018    0.805</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0      13   2005   2018    0.737</span></span></code></pre></div>
+<p>The alternative to this is the assumption of no survival after the end of the follow up period. Under this condition, survival after the specified years of projected survival will go to 0. This analysis is run as follows, for projected survival to year 2030 with 18 years of survival data.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>survival.nosurvival <span class="ot">&lt;-</span> <span class="fu">format_survival</span>(<span class="at">data=</span>raw.survival,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">ages =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">85</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">years =</span> <span class="dv">2000</span><span class="sc">:</span><span class="dv">2018</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">prevYear =</span> <span class="dv">2018</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">assumption =</span> <span class="st">&quot;nosurvival&quot;</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">names =</span><span class="fu">c</span>(<span class="st">&quot;age&quot;</span><span class="ot">=</span><span class="st">&quot;Age_recode_with_single_ages_and_85&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                                                <span class="st">&quot;yrPrev&quot;</span><span class="ot">=</span><span class="st">&quot;yrPrev&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                                                <span class="st">&quot;yrDiag&quot;</span><span class="ot">=</span><span class="st">&quot;Year_of_diagnosis&quot;</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                                                <span class="st">&quot;Observed&quot;</span><span class="ot">=</span><span class="st">&quot;Observed&quot;</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                                                <span class="st">&quot;Expected&quot;</span><span class="ot">=</span><span class="st">&quot;Expected&quot;</span>))   </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(survival.nosurvival)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ageDiag agePrev yrDiag yrPrev survival</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0      18   2000   2018    0.788</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0      17   2001   2018    0.800</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0      16   2002   2018    0.772</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0      15   2003   2018    0.794</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0      14   2004   2018    0.805</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0      13   2005   2018    0.737</span></span></code></pre></div>
+<!-- ## Predicting survival -->
+<!-- Survival for years not in the survival dataset (e.g. for years there is not yet data) can be predicted using the convenient \code{survPredict} function. This function is simple a wrapper for the predict.lm method.  -->
+<!-- ```{r echo=TRUE} -->
+<!-- survival.predictions <- survPredict(survival.nosurvival, -->
+<!--                                     years = 2019:2020, -->
+<!--                                     names = c("agePrev" = "agePrev", -->
+<!--                                               "yrPrev" = "yrPrev", -->
+<!--                                               "survival" = "survival")) -->
+<!-- head(survival.predictions) -->
+<!-- ``` -->
+</div>
+<div id="generating-prevalence-counts" class="section level2">
+<h2>Generating prevalence counts</h2>
+<p>Once prevalence and incidence are both properly formatted, using them in the  function is simple. It is designed to take the cleaned inputs with little fuss on the researcher’s part: simply state the year to calculate prevelance for. Further options are provided to expand output, if desired. In this case, using the previously cleaned data, incomplete prevalence is calculated for the year 2018.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>incomplete_prevalence <span class="ot">&lt;-</span> <span class="fu">prevEst</span>(<span class="at">incidence=</span>incidence.reformat, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">survival=</span>survival.nosurvival,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">year =</span> <span class="dv">2018</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">adjust =</span> F,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">grouped_ages =</span> F)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(incomplete_prevalence)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   agePrev prevalence</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0    361.000</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       1    680.372</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       2    994.265</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       3   1313.182</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       4   1572.602</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       5   1742.276</span></span></code></pre></div>
+</div>
+<div id="generating-rates" class="section level2">
+<h2>Generating Rates</h2>
+<p>Changing counts to rates per 100,000 using U.S. Census Population data for 2018</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load single year population estimate from SEER*Stat</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>census.population <span class="ot">&lt;-</span> <span class="fu">read.SeerStat</span>(<span class="st">&quot;US_PopEst_2018_sex&quot;</span>, <span class="at">UseVarLabelsInData =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(<span class="fu">read.SeerStat</span>(<span class="st">&quot;US_PopEst_2018_sex&quot;</span>, <span class="at">UseVarLabelsInData =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>              <span class="fu">group_by</span>(Age_recode_with_single_ages_and_85) <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>              <span class="fu">mutate</span>(<span class="at">Count =</span> <span class="fu">sum</span>(Count),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Sex =</span> <span class="st">&quot;Both&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>              <span class="fu">distinct</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">&quot;population&quot;</span><span class="ot">=</span><span class="st">&quot;Count&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Age_recode_with_single_ages_and_85, Sex) <span class="sc">%&gt;%</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">D&quot;</span>, <span class="st">&quot;&quot;</span>, Age_recode_with_single_ages_and_85))) <span class="sc">%&gt;%</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Age_recode_with_single_ages_and_85)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>prevalence_rates <span class="ot">&lt;-</span> incomplete_prevalence <span class="sc">%&gt;%</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">cut</span>(<span class="fu">as.numeric</span>(agePrev), <span class="fu">c</span>(<span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">85</span>,<span class="dv">5</span>),<span class="dv">150</span>), <span class="at">include.lowest =</span> F, <span class="at">right =</span> F)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(census.population, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;agePrev&quot;</span> <span class="ot">=</span> <span class="st">&quot;age&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">prevalence=</span><span class="fu">sum</span>(prevalence),</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">population=</span><span class="fu">sum</span>(population),</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">crude_rate=</span>prevalence<span class="sc">/</span>population<span class="sc">*</span><span class="dv">100000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
+</div>
+<div id="visualizing-rates" class="section level2">
+<h2>Visualizing rates</h2>
+<p>We can then visualize the single age histogram and the crude prevalence rates by 5 year age groups</p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="generating-age-adjusted-prevalence-rates" class="section level2">
+<h2>Generating age-adjusted prevalence rates</h2>
+<p>Age-adjusted rates can be obtained manually, but, for convenience, this functionality is included in the  function for users who specify . This function can take grouped ages if need, as well. To use grouped ages, input a vector that you would like ages grouped by (i.e. seq(0,85, 5) if you want 5-year ages bins from 0 to 85, with 85+ grouped into 85). If no grouped ages are desired, the data can eb returned in single ages up to 85. Finally, if your data is sex-specific (e.g. as in the case of ovarian cancer), sex specific rates are also obtainable by specifying  or .</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="at">file =</span> <span class="st">&quot;X:</span><span class="sc">\\</span><span class="st">Manuscripts</span><span class="sc">\\</span><span class="st">Prevalence_NonMalignant</span><span class="sc">\\</span><span class="st">prevEst</span><span class="sc">\\</span><span class="st">R</span><span class="sc">\\</span><span class="st">sysdata.rda&quot;</span>)   </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>age.adjusted_prevalence <span class="ot">&lt;-</span> <span class="fu">prevEst</span>(<span class="at">incidence =</span> incidence.reformat, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">survival =</span> survival.nosurvival,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">year =</span> <span class="dv">2018</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">adjust =</span> T,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">grouped_ages =</span> T,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">groups =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">85</span>,<span class="dv">5</span>))</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># year = 2018</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   prevest &lt;- incidence.reformat %&gt;%</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#     dplyr::left_join(survival.nosurvival, by = c(&quot;ageDiag&quot;,&quot;yrDiag&quot;)) %&gt;%</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#     dplyr::mutate(yrPrev = year,</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#                   final = count*survival,</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#                   agePrev = as.numeric(ageDiag)+(yrPrev-yrDiag)) %&gt;%</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#     dplyr::group_by(agePrev) %&gt;%</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#     tidyr::drop_na() %&gt;%</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     dplyr::summarise(prevalence = sum(final, na.rm=TRUE)) %&gt;%</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#     dplyr::ungroup()</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(age.adjusted_prevalence)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    agePrev prevalence census_population standard_population crude_rate</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1        0   4921.421          39525924            18986520   12.45112</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2        5  10496.593          40376570            19919840   25.99674</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       10  14862.963          41737258            20056779   35.61078</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       15  20376.469          42129322            19819518   48.36648</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       20  26037.630          43616172            18257225   59.69719</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       25  41644.129          47021922            17722067   88.56322</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7       30  64668.553          44198298            19511370  146.31458</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8       35  97623.292          43064044            22179956  226.69328</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9       40 136383.643          39362904            22479229  346.47759</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10      45 220339.672          41437050            19805793  531.74556</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11      50 343117.987          41718362            17224359  822.46275</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12      55 529733.316          43835364            13307234 1208.46109</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13      60 701687.270          40613134            10654272 1727.73485</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14      65 826630.556          34134438             9409940 2421.69083</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15      70 871181.563          26763928             8725574 3255.05869</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16      75 722781.672          18504150             7414559 3906.05173</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17      80 528853.488          12247562             4900234 4318.03071</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18      85 581459.305          13088600             4259173 4442.48663</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       weights adjusted_rate adjusted_lci adjusted_uci</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  0.06913399     0.8607958    0.8369125    0.8851877</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  0.07253241     1.8856064    1.8497045    1.9220300</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  0.07303103     2.6006921    2.5590477    2.6428444</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  0.07216712     3.4904692    3.4427061    3.5387293</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  0.06647847     3.9685781    3.9205188    4.0170796</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  0.06452985     5.7149712    5.6602123    5.7701279</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7  0.07104508    10.3949314   10.3149670   10.4753616</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  0.08076198    18.3081972   18.1935287   18.4234092</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9  0.08185169    28.3597783   28.2094638   28.5106952</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 0.07211714    38.3479691   38.1880145   38.5084277</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 0.06271759    51.5828780   51.4104240   51.7557674</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 0.04845449    58.5553698   58.3977910   58.7132686</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13 0.03879449    67.0265919   66.8698544   67.1836059</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14 0.03426361    82.9758702   82.7970926   83.1549385</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 0.03177169   103.4187044  103.2016503  103.6361021</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16 0.02699800   105.4555838  105.2126057  105.6989843</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17 0.01784280    77.0457717   76.8382610   77.2537042</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18 0.01550856    68.8965815   68.7196070   69.0738991</span></span></code></pre></div>
+<p>We can compare crude versus age-adjusted prevalence rate</p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="estimating-complete-prevalence" class="section level1">
+<h1>Estimating complete prevalence</h1>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>raw.incidence_est <span class="ot">&lt;-</span> <span class="fu">read.SeerStat</span>(<span class="st">&quot;SEER9_incidence_1975_2018&quot;</span>, <span class="at">UseVarLabelsInData =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;-&quot;</span>,Year_of_diagnosis ))  </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw.incidence_est)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Age_recode_with_single_ages_and_85 Year_of_diagnosis Count</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                           00 years              1975    52</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                           00 years              1976    57</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                           00 years              1977    56</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                           00 years              1978    86</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                           00 years              1979    68</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                           00 years              1980    65</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>incidence_est.reformat <span class="ot">&lt;-</span> <span class="fu">format_incidence</span>(<span class="at">data =</span> raw.incidence_est ,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                             <span class="at">ages=</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">85</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                             <span class="at">years =</span><span class="dv">1975</span><span class="sc">:</span><span class="dv">2018</span>,</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>                             <span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;ageDiag&quot;</span><span class="ot">=</span><span class="st">&quot;Age_recode_with_single_ages_and_85&quot;</span>,</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;yrDiag&quot;</span><span class="ot">=</span><span class="st">&quot;Year_of_diagnosis&quot;</span>,</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;incidence&quot;</span><span class="ot">=</span><span class="st">&quot;Count&quot;</span>))  </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(incidence_est.reformat)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ageDiag yrDiag count</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0   1975    52</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0   1976    57</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0   1977    56</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0   1978    86</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0   1979    68</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0   1980    65</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>survival.extended <span class="ot">&lt;-</span> <span class="fu">format_survival</span>(<span class="at">data=</span>raw.survival,</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>                            <span class="at">ages=</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">85</span>,</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                            <span class="at">years=</span><span class="dv">1975</span><span class="sc">:</span><span class="dv">2018</span>,</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>                             <span class="at">prevYear =</span><span class="dv">2018</span>,</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">Observed.Surv=</span><span class="cn">TRUE</span>,</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">assumption=</span><span class="st">&quot;nosurvival&quot;</span>,</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">years.observed.surv=</span><span class="dv">30</span>,</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>                             <span class="at">names =</span><span class="fu">c</span>(<span class="st">&quot;age&quot;</span><span class="ot">=</span><span class="st">&quot;Age_recode_with_single_ages_and_85&quot;</span>,</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">&quot;yrPrev&quot;</span><span class="ot">=</span><span class="st">&quot;yrPrev&quot;</span>,</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">&quot;yrDiag&quot;</span><span class="ot">=</span><span class="st">&quot;Year_of_diagnosis&quot;</span>,</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">&quot;Observed&quot;</span><span class="ot">=</span><span class="st">&quot;Observed&quot;</span>))   </span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(survival.extended)</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ageDiag agePrev yrDiag yrPrev survival</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0      43   1975   2018        0</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0      42   1976   2018        0</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0      41   1977   2018        0</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0      40   1978   2018        0</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0      39   1979   2018        0</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0      38   1980   2018        0</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>complete_incidence <span class="ot">&lt;-</span> <span class="fu">regPrev</span>(<span class="at">incidence=</span>incidence.reformat,</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">incidence_est=</span>incidence_est.reformat,</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">regYr=</span><span class="dv">2000</span><span class="sc">:</span><span class="dv">2018</span>,</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">durationYr=</span><span class="dv">1975</span><span class="sc">:</span><span class="dv">1999</span>)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>complete_prevalence <span class="ot">&lt;-</span> <span class="fu">prevEst</span>(<span class="at">incidence=</span>complete_incidence, </span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">survival=</span>survival.extended,</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">year =</span><span class="dv">2018</span>,</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">adjust =</span> F,</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">grouped_ages =</span> F)</span></code></pre></div>
+<p>We can then compare the output of complete versus incomplete prevalence methods</p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<!-- ## Generating projected prevalence rates -->
+<!-- In order to project survival beyond what has been observed, one must make assumptions about what that survival looks like. One option is to assume that at the end of the observation period that survival is equal to that in the general population. Whether this is a fair assumption is determined by the specific characteristics of your cancer(s) of interest. This analysis is run as follows, for projected survival to year 2030 with 18 years of survival data. These analyses must be run stratified by race and age in order to match the US life tables.  -->
+<!-- ```{r echo=TRUE} -->
+<!-- projected_incidence <- project_incidence(data=complete_incidence,  -->
+<!--                                      final.year=2030)  -->
+<!-- projected_survival_population <- project_survival(data=raw.survival, -->
+<!--                                                   ages= 0:85, -->
+<!--                                                   years=1975:2018, -->
+<!--                                                   final.year=2030, -->
+<!--                                                   Observed.Surv=TRUE, -->
+<!--                                                   Expected.Surv=TRUE, -->
+<!--                                                   assumption="population", -->
+<!--                                                   life.table=life.tables, -->
+<!--                                                   years.observed.surv=20, -->
+<!--                                                   names =c("age"="Age_recode_with_single_ages_and_85", -->
+<!--                                                            "yrPrev"="yrPrev", -->
+<!--                                                            "yrDiag"="Year_of_diagnosis", -->
+<!--                                                            "Observed"="Observed", -->
+<!--                                                            "Expected"="Expected")) -->
+<!-- projected_prevalence_population <- prevEst(incidence=projected_incidence,  -->
+<!--   survival=projected_survival_population, -->
+<!--   year =2030, -->
+<!--   adjust = F, -->
+<!--   grouped_ages = F) -->
+<!-- ``` -->
+<!-- ```{r echo=TRUE} -->
+<!-- projected_survival_nosurvival <- project_survival(data=raw.survival, -->
+<!--                                                   ages= 0:85, -->
+<!--                                                   years=1975:2018, -->
+<!--                                                   final.year=2030, -->
+<!--                                                   Observed.Surv=TRUE, -->
+<!--                                                   assumption="nosurvival", -->
+<!--                                                   years.observed.surv=20, -->
+<!--                                                   names =c("age"="Age_recode_with_single_ages_and_85","yrPrev"="yrPrev","yrDiag"="Year_of_diagnosis", -->
+<!--                                                            "Observed"="Observed","Expected"="Expected")) -->
+<!-- projected_prevalence_nosurvival <- prevEst(incidence=projected_incidence,  -->
+<!--   survival=projected_survival_nosurvival, -->
+<!--   year =2030, -->
+<!--   adjust = F, -->
+<!--   grouped_ages = F) -->
+<!-- ``` -->
+<!-- We can then compare the output of the two projected prevalence methods -->
+<!-- ```{r echo=FALSE, fig.height= 4, fig.width=8} -->
+<!-- projected_prevalence <- bind_rows(projected_prevalence_population %>% mutate(method="Population"), -->
+<!--                                   projected_prevalence_nosurvival %>% mutate(method="No Survival")) -->
+<!-- projected_prevalence  %>% -->
+<!--   dplyr::mutate(age = cut(as.numeric(agePrev ), c(seq(0,85,5),150), include.lowest = F, right = F,ordered_result =TRUE)) %>% -->
+<!--   group_by(age,method ) %>% -->
+<!--   summarise(prevalence=sum(prevalence)) %>% -->
+<!--   ungroup() %>% -->
+<!--   tidyr::drop_na()%>% -->
+<!--   ggplot(aes(x=age, -->
+<!--            y=prevalence)) + -->
+<!--   geom_col() +  -->
+<!--   scale_x_discrete(name="Age at Prevalence") + -->
+<!--   scale_y_continuous(name="Total Prevalence Count (2030)", labels = scales::comma, expand=expansion(mult=c(0,.10))) + plot.theme + -->
+<!--   facet_grid(~method) -->
+<!-- ``` -->
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
