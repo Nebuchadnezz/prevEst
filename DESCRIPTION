@@ -25,12 +25,13 @@ Description: Complete prevalence refers to the number of people diagnosed with a
 License: `use_gpl3_license()`
 Depends: R (>= 4.0.0)
 Imports: 
-	dplyr (>= 1.0.1), 
+	dplyr,
 	tidyr, 
-	purrr
-Suggests:
-	asht,
+	purrr,
+	modelr,
 	betareg
+Suggests:
+	asht
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

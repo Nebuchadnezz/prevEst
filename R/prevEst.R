@@ -12,18 +12,30 @@
 #' @param incidence_est Estimated incidence data frame for all years containing  age at diagnosis (named "ageDiag"), year diagnosed (named "yrDiag"),  count of new cases (named "count)
 #' @param sex_specific character string containing sex ("Male" or "Female" if requesting sex-specific rates)
 #'
-#' @return Data.frame object
+#' @return A data.frame with estimated prevalence by age at prevalence. If incidence data is grouped (as in the sample data),
+#' then it will assume that all cases in the group (e.g. ages 0-4) have the same rates of survival. 
 #'
 #' @examples
-#'
-#' prevEst(incidence = incidence.reformat,
-#'        survival = survival.nosurvival,
-#'        year = 2018,
-#'        adjust = T,
-#'        standardpopulation = standard.population,
-#'        censuspopulation = census.population,
-#'        grouped_ages = T,
-#'        groups = seq(0,85,5))
+#' 
+#' 
+#' data(incidence)
+#' data(incidence_est)
+#' data(survival)
+#' 
+#' prevEst(incidence = regPrev(incidence = incidence,
+#                              incidence_est = incidence_est,
+#'                             regYr = c(2001:2017)),
+#'         survival = format_survival(survival,
+#'                                    ages = c(0:85),
+#'                                    years = c(1995:2018),
+#'                                    assumption = "population",
+#'                                    names = c("ageDiag" = "ageDiag",
+#'                                              "yrDiag" = "yrDiag",
+#'                                              "Observed" = "survival"),
+#'                                    life.table = life.table),
+#'         year = 2018,
+#'         years = 2010:2018,                                      
+#'         adjust = F)         
 #'
 #'
 #' @export

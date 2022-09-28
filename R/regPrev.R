@@ -4,10 +4,14 @@
 #' @param incidence_est Estimated incidence data frame for smaller area containing  all years containing  age at diagnosis (named "ageDiag"), year diagnosed (named "yrDiag"),  count of new cases (named "count)
 #' @param regYr Years to do regression on ie. c(2000:2010)
 #' @param durationYr Years that require estimates from regression
-#' @return An incidence dataframe
+#' @return An incidence data.frame for the years provided.
 #' @examples
-#' regprev(incidence = incomplete_incidence,
-#         incidence_est = complete_incidence,
+#' 
+#' data(incidence)
+#' data(incidence_est)
+#' 
+#' regPrev(incidence = incidence,
+#         incidence_est = incidence_est,
 #'        regYr = c(2001:2017),
 #'        durationYr = c(1975:2000))
 #'

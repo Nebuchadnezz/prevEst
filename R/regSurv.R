@@ -5,9 +5,11 @@
 #' @param life.table 
 #' @return A survival dataframe with missing values imputed.
 #' @examples
-#' regprev(surv = data,
-#'        regYr = c(2001:2017),
-#'        durationYr = c(1975:2000))
+#' 
+#' data(survival)
+#' data(life.table)
+#' regSurv(surv = survival,
+#'         life.table = life.table)
 #'
 #' @export
 
@@ -16,7 +18,7 @@ regSurv <- function(
     names = c("ageDiag" = "ageDiag", 
               "yrDiag" = "yrDiag",
               "period" = "period",
-              "observed" = "observed"),
+              "observed" = "survival"),
     life.table
   ){
   require(betareg)

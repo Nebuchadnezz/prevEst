@@ -12,28 +12,32 @@
 #' @details The prevEst function requires both a properly formatted incidence and survival data. This function, the counterpart to [format_incidence()], is designed 
 #' to take SEER-like survival data and format it to work more easily with the [prevEst()] function. 3 columns are necessary: a column for 1) age at diagnosis, 2) year of diagnosis, 
 #' and 3) the observed survival for that combination of the two. While these functions aren't necessary, they help wrap some simple transformation steps.
-#' @return Survival dataframe, formatted
+#' @return A formatted survival data.frame.
 #'
 #' @examples
-#'
-#' format_survival(survDf,
+#' data(survival)
+#' data(life.table)
+#' 
+#' format_survival(survival,
 #'                 ages = c(0:85),
-#'                 years = c(2004:2018),
+#'                 years = c(2015:2018),
 #'                 assumption = "nosurvival",
-#'                 names = c("ageDiag" = "age",
+#'                 names = c("ageDiag" = "ageDiag",
 #'                           "yrDiag" = "yrDiag",
-#'                           "Observed" = "Observed"),
+#'                           "Observed" = "survival"),
+#'                 keepExtraCols = FALSE)
+#'                 
+#' format_survival(survival,
+#'                 ages = c(0:85),
+#'                 years = c(1995:2018),
+#'                 assumption = "population",
+#'                 names = c("ageDiag" = "ageDiag",
+#'                           "yrDiag" = "yrDiag",
+#'                           "Observed" = "survival"),
+#'                 life.table = life.table,
 #'                 keepExtraCols = FALSE)
 #'
 #'
-#' format_survival(data = raw.survival,
-#'                 ages = 0:85,
-#'                 years = 2000:2018,
-#'                 prevYear = 2018,
-#'                 life.table = NULL,
-#'                 names = c("ageDiag" = "age",
-#'                           "yrDiag" = "yrDiag",
-#'                           "Observed" = "Observed")
 #'
 #'
 #' @seealso [prevEst::format_incidence()] The sister function that formats incidence data
@@ -50,7 +54,6 @@ format_survival <- function(data, # Survival data to be formatted
                                     "Observed"="Observed"),
                             keepExtraCols=FALSE
 ) {
-  require(dplyr)
   options(dplyr.summarise.inform = FALSE)
   
   if(is.null(years)) {
@@ -150,8 +153,7 @@ format_survival <- function(data, # Survival data to be formatted
                                      survival < 0 ~ 0,
                                      agePrev >= 100 ~ 0,
                                      period == 0 ~ 1,
-                                     TRUE ~ round(as.numeric(survival), 3)))  %>%
-    fill(survival, .direction = "downup") %>%
+                                     TRUE ~ round(as.numeric(survival), 3))) %>%
     mutate_all(as.numeric)
   
   return(as.data.frame(final))
